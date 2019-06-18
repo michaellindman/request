@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+type Headers struct {
+	Headers []struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	} `json:"headers"`
+}
+
 // Contacts list
 type Contacts struct {
 	Contacts []struct {

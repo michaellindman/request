@@ -26,3 +26,8 @@ func Contact() map[string]interface{} {
 	m := structs.Map(contact)
 	return m
 }
+
+func Header() (headers Headers) {
+	json.Unmarshal(File("./json/headers.json"), &headers)
+	return
+}

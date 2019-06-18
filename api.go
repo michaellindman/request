@@ -22,10 +22,9 @@ func Request(path string) []byte {
 		log.Fatal("Error reading request. ", err)
 	}
 
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Api-Key", "57dc92f574f7f400e1d12670940c19930a1f85b78485ca25ac96d96590dc7f99")
-	req.Header.Set("Api-Username", "Michael")
+	for _, headers := range Header().Headers {
+		req.Header.Set(headers.Name, headers.Value)
+	}
 
 	client := &http.Client{Timeout: time.Second * 10}
 
@@ -88,14 +87,13 @@ func GetTopics(path string) (topics TagTopics) {
 
 // Topics n/a
 func Topics(path string) map[string]interface{} {
-	topics := GetTopics(path)
 	var topic TopicsList
-	for i := 0; i < len(topics.TopicList.Topics); i++ {
+	for _, topics := range GetTopics(path).TopicList.Topics {
 		var t Topic
-		json.Unmarshal(Request("/t/"+topics.TopicList.Topics[i].Slug), &t)
-		for j := 0; j < len(t.PostStream.Posts); j++ {
-			if t.PostStream.Posts[j].PostNumber != 1 {
-				t.PostStream.Posts[j].Cooked = ""
+		json.Unmarshal(Request("/t/"+topics.Slug), &t)
+		for i := 0; i < len(t.PostStream.Posts); i++ {
+			if t.PostStream.Posts[i].PostNumber != 1 {
+				t.PostStream.Posts[i].Cooked = ""
 			}
 		}
 		t.Details.CreatedBy.AvatarTemplate = strings.ReplaceAll(t.Details.CreatedBy.AvatarTemplate, "{size}", "120")
