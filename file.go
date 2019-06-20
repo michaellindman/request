@@ -23,7 +23,7 @@ func File(path string) ([]byte, *HTTPError) {
 
 func Contact() map[string]interface{} {
 	var contact Contacts
-	resp, err := File("./json/contacts.json")
+	resp, err := File("./assets/json/contacts.json")
 	if err != nil {
 		m := structs.Map(err)
 		return m
@@ -34,7 +34,7 @@ func Contact() map[string]interface{} {
 }
 
 func Header() (headers *Headers, err *HTTPError) {
-	resp, err := File("./json/headers.json")
+	resp, err := File("./assets/json/headers.json")
 	if err != nil {
 		return
 	}
