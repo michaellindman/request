@@ -10,24 +10,34 @@ import (
 )
 
 // File reads request json file
-func File(path string) (b []byte) {
+func File(path string) ([]byte, *HTTPError) {
 	jsonFile, err := os.Open(path)
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		log.Println("Error reading request. ", err)
+		return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
 	}
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	return byteValue
+	return byteValue, nil
 }
 
 func Contact() map[string]interface{} {
 	var contact Contacts
-	json.Unmarshal(File("./json/contacts.json"), &contact)
+	resp, err := File("./json/contacts.json")
+	if err != nil {
+		m := structs.Map(err)
+		return m
+	}
+	json.Unmarshal(resp, &contact)
 	m := structs.Map(contact)
 	return m
 }
 
-func Header() (headers Headers) {
-	json.Unmarshal(File("./json/headers.json"), &headers)
+func Header() (headers *Headers, err *HTTPError) {
+	resp, err := File("./json/headers.json")
+	if err != nil {
+		return
+	}
+	json.Unmarshal(resp, &headers)
 	return
 }
