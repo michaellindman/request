@@ -16,7 +16,6 @@ type Contacts struct {
 	Contacts []struct {
 		Name    string `json:"name"`
 		Address string `json:"address"`
-		Icon    string `json:"icon"`
 		Image   string `json:"image"`
 	} `json:"contacts"`
 }
