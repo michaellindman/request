@@ -27,8 +27,7 @@ func Request(path string) ([]byte, *HTTPError) {
 	req, err := http.NewRequest("GET", url(path), nil)
 	if err != nil {
 		log.Println("Error reading request. ", err)
-        return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
-        
+		return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
 	}
 
 	head, er := Header()
