@@ -11,6 +11,20 @@ type Headers struct {
 	} `json:"headers"`
 }
 
+type Options struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Site        string `json:"site"`
+	Options     struct {
+		Address string `json:"address"`
+		Port    int    `json:"port"`
+		Ace     struct {
+			DynamicReload bool   `json:"DynamicReload"`
+			BaseDir       string `json:"BaseDir"`
+		} `json:"ace"`
+	} `json:"options"`
+}
+
 // Contacts list
 type Contacts struct {
 	Contacts []struct {

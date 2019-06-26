@@ -2,32 +2,26 @@ package request
 
 import (
 	"encoding/json"
-	"fmt"
 	"html"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"0cd.xyz-go/logger"
 	"github.com/fatih/structs"
 )
-
-type HTTPError struct {
-	Status     string
-	StatusCode int
-}
 
 func url(path string) string {
 	return string("https://forum.0cd.xyz/" + path)
 }
 
 // Request sends GET to path
-func Request(path string) ([]byte, *HTTPError) {
+func Request(path string) ([]byte, *logger.HTTPError) {
 	req, err := http.NewRequest("GET", url(path), nil)
 	if err != nil {
-		log.Println("Error reading request. ", err)
-		return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
+		logger.ErrorLog("Error reading request. ", err)
+		return nil, &logger.HTTPError{Status: "500 Internal Server Error", StatusCode: http.StatusInternalServerError}
 	}
 
 	head, er := Header()
@@ -41,21 +35,21 @@ func Request(path string) ([]byte, *HTTPError) {
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("Error reading request. ", err)
-		return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
+		logger.ErrorLog("Error reading request. ", err)
+		return nil, &logger.HTTPError{Status: "500 Internal Server Error", StatusCode: http.StatusInternalServerError}
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error reading request. ", err)
-		return nil, &HTTPError{Status: "500 Internal Server Error", StatusCode: 500}
+		logger.ErrorLog("Error reading request. ", err)
+		return nil, &logger.HTTPError{Status: "500 Internal Server Error", StatusCode: http.StatusInternalServerError}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
 		return body, nil
 	}
-	fmt.Printf("Request Error: GET %d %s\n", resp.StatusCode, html.EscapeString(url(path)))
-	return nil, &HTTPError{Status: resp.Status, StatusCode: resp.StatusCode}
+	logger.GetLog("GET %d %s\n", resp.StatusCode, html.EscapeString(url(path)))
+	return nil, &logger.HTTPError{Status: resp.Status, StatusCode: resp.StatusCode}
 }
 
 // Category returns category json data
@@ -114,7 +108,7 @@ func Tag() map[string]interface{} {
 }
 
 // GetTopics gets topic list from tag
-func GetTopics(path string) (topics TagTopics, err *HTTPError) {
+func GetTopics(path string) (topics TagTopics, err *logger.HTTPError) {
 	resp, err := Request("tags/" + path)
 	if err != nil {
 		return
