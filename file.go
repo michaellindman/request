@@ -22,6 +22,7 @@ func File(path string) ([]byte, *logger.HTTPError) {
 	return byteValue, nil
 }
 
+// Header get header data from json file
 func Header() (headers *Headers, err *logger.HTTPError) {
 	resp, err := File("./assets/json/headers.json")
 	if err != nil {
@@ -31,6 +32,7 @@ func Header() (headers *Headers, err *logger.HTTPError) {
 	return
 }
 
+// Option get options data from json file
 func Option() (options *Options) {
 	resp, err := File("./assets/json/options.json")
 	if err != nil {
@@ -40,6 +42,7 @@ func Option() (options *Options) {
 	return
 }
 
+// Contact get contact information from json file
 func Contact() map[string]interface{} {
 	var contact Contacts
 	resp, err := File("./assets/json/contacts.json")

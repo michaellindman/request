@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Headers API request headers
 type Headers struct {
 	Headers []struct {
 		Name  string `json:"name"`
@@ -11,6 +12,7 @@ type Headers struct {
 	} `json:"headers"`
 }
 
+// Options main program options
 type Options struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -25,7 +27,7 @@ type Options struct {
 	} `json:"options"`
 }
 
-// Contacts list
+// Contacts lists contact information
 type Contacts struct {
 	Contacts []struct {
 		Name    string `json:"name"`
@@ -34,49 +36,7 @@ type Contacts struct {
 	} `json:"contacts"`
 }
 
-// AutoGen about page data
-type AutoGen struct {
-	About struct {
-		Stats struct {
-			TopicCount        int `json:"topic_count"`
-			PostCount         int `json:"post_count"`
-			UserCount         int `json:"user_count"`
-			Topics7Days       int `json:"topics_7_days"`
-			Topics30Days      int `json:"topics_30_days"`
-			Posts7Days        int `json:"posts_7_days"`
-			Posts30Days       int `json:"posts_30_days"`
-			Users7Days        int `json:"users_7_days"`
-			Users30Days       int `json:"users_30_days"`
-			ActiveUsers7Days  int `json:"active_users_7_days"`
-			ActiveUsers30Days int `json:"active_users_30_days"`
-			LikeCount         int `json:"like_count"`
-			Likes7Days        int `json:"likes_7_days"`
-			Likes30Days       int `json:"likes_30_days"`
-		} `json:"stats"`
-		Description string `json:"description"`
-		Title       string `json:"title"`
-		Locale      string `json:"locale"`
-		Version     string `json:"version"`
-		HTTPS       bool   `json:"https"`
-		Moderators  []struct {
-			ID             int       `json:"id"`
-			Username       string    `json:"username"`
-			Name           string    `json:"name"`
-			AvatarTemplate string    `json:"avatar_template"`
-			Title          string    `json:"title"`
-			LastSeenAt     time.Time `json:"last_seen_at"`
-		} `json:"moderators"`
-		Admins []struct {
-			ID             int       `json:"id"`
-			Username       string    `json:"username"`
-			Name           string    `json:"name"`
-			AvatarTemplate string    `json:"avatar_template"`
-			Title          string    `json:"title"`
-			LastSeenAt     time.Time `json:"last_seen_at"`
-		} `json:"admins"`
-	} `json:"about"`
-}
-
+// Tags list of forum tags
 type Tags struct {
 	Tags []struct {
 		ID      string `json:"id"`
@@ -95,11 +55,12 @@ type TagTopics struct {
 	} `json:"topic_list"`
 }
 
+// TopicsList list of topics from tags
 type TopicsList struct {
 	Topic []Topic
 }
 
-// Topic data
+// Topic lists data from a forum topic
 type Topic struct {
 	PostStream struct {
 		Posts []struct {
@@ -123,6 +84,7 @@ type Topic struct {
 	} `json:"details"`
 }
 
+// Categories list of categories
 type Categories struct {
 	CategoryList struct {
 		CanCreateCategory bool        `json:"can_create_category"`
@@ -170,6 +132,7 @@ type Categories struct {
 	} `json:"category_list"`
 }
 
+// CategoryTopics lists topics from categories
 type CategoryTopics struct {
 	Users []struct {
 		ID             int    `json:"id"`

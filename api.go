@@ -65,7 +65,7 @@ func Category() map[string]interface{} {
 	return m
 }
 
-// Category returns category json data
+// CategoryTopic returns category json data
 func CategoryTopic(path string) map[string]interface{} {
 	var topics CategoryTopics
 	resp, err := Request("/c/" + path)
@@ -75,22 +75,6 @@ func CategoryTopic(path string) map[string]interface{} {
 	}
 	json.Unmarshal(resp, &topics)
 	m := structs.Map(topics)
-	return m
-}
-
-// About gets json data from about page
-func About() map[string]interface{} {
-	var about AutoGen
-	resp, err := Request("about")
-	if err != nil {
-		m := structs.Map(err)
-		return m
-	}
-	json.Unmarshal(resp, &about)
-	for i := 0; i < len(about.About.Admins); i++ {
-		about.About.Admins[i].AvatarTemplate = strings.ReplaceAll(about.About.Admins[i].AvatarTemplate, "{size}", "120")
-	}
-	m := structs.Map(about)
 	return m
 }
 
