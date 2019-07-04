@@ -25,6 +25,12 @@ type Options struct {
 			BaseDir       string `json:"BaseDir"`
 		} `json:"ace"`
 	} `json:"options"`
+	Database struct {
+		Server string `json:"server"`
+		DB     string `json:"db"`
+		User   string `json:"user"`
+		Passwd string `json:"passwd"`
+	} `json:"database"`
 }
 
 // Contacts lists contact information
@@ -48,9 +54,66 @@ type Tags struct {
 
 // TagTopics list of topics via tag
 type TagTopics struct {
-	TopicList struct {
+	Users []struct {
+		ID             int    `json:"id"`
+		Username       string `json:"username"`
+		Name           string `json:"name"`
+		AvatarTemplate string `json:"avatar_template"`
+	} `json:"users"`
+	PrimaryGroups []interface{} `json:"primary_groups"`
+	TopicList     struct {
+		CanCreateTopic bool        `json:"can_create_topic"`
+		Draft          interface{} `json:"draft"`
+		DraftKey       string      `json:"draft_key"`
+		DraftSequence  int         `json:"draft_sequence"`
+		PerPage        int         `json:"per_page"`
+		TopTags        []string    `json:"top_tags"`
+		Tags           []struct {
+			ID         int    `json:"id"`
+			Name       string `json:"name"`
+			TopicCount int    `json:"topic_count"`
+			Staff      bool   `json:"staff"`
+		} `json:"tags"`
 		Topics []struct {
-			Slug string `json:"slug"`
+			ID                 int         `json:"id"`
+			Title              string      `json:"title"`
+			FancyTitle         string      `json:"fancy_title"`
+			Slug               string      `json:"slug"`
+			PostsCount         int         `json:"posts_count"`
+			ReplyCount         int         `json:"reply_count"`
+			HighestPostNumber  int         `json:"highest_post_number"`
+			ImageURL           string      `json:"image_url"`
+			CreatedAt          time.Time   `json:"created_at"`
+			LastPostedAt       time.Time   `json:"last_posted_at"`
+			Bumped             bool        `json:"bumped"`
+			BumpedAt           time.Time   `json:"bumped_at"`
+			Unseen             bool        `json:"unseen"`
+			LastReadPostNumber int         `json:"last_read_post_number"`
+			Unread             int         `json:"unread"`
+			NewPosts           int         `json:"new_posts"`
+			Pinned             bool        `json:"pinned"`
+			Unpinned           interface{} `json:"unpinned"`
+			Visible            bool        `json:"visible"`
+			Closed             bool        `json:"closed"`
+			Archived           bool        `json:"archived"`
+			NotificationLevel  int         `json:"notification_level"`
+			Bookmarked         bool        `json:"bookmarked"`
+			Liked              bool        `json:"liked"`
+			Tags               []string    `json:"tags"`
+			Views              int         `json:"views"`
+			LikeCount          int         `json:"like_count"`
+			HasSummary         bool        `json:"has_summary"`
+			Archetype          string      `json:"archetype"`
+			LastPosterUsername string      `json:"last_poster_username"`
+			CategoryID         int         `json:"category_id"`
+			PinnedGlobally     bool        `json:"pinned_globally"`
+			FeaturedLink       interface{} `json:"featured_link"`
+			Posters            []struct {
+				Extras         string      `json:"extras"`
+				Description    string      `json:"description"`
+				UserID         int         `json:"user_id"`
+				PrimaryGroupID interface{} `json:"primary_group_id"`
+			} `json:"posters"`
 		} `json:"topics"`
 	} `json:"topic_list"`
 }
