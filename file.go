@@ -22,16 +22,6 @@ func File(path string) ([]byte, *logger.HTTPError) {
 	return byteValue, nil
 }
 
-// Header get header data from json file
-func Header() (headers *Headers, err *logger.HTTPError) {
-	resp, err := File("./assets/json/headers.json")
-	if err != nil {
-		return
-	}
-	json.Unmarshal(resp, &headers)
-	return
-}
-
 // Option get options data from json file
 func Option() (options *Options) {
 	resp, err := File("./assets/json/options.json")

@@ -4,14 +4,6 @@ import (
 	"time"
 )
 
-// Headers API request headers
-type Headers struct {
-	Headers []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
-	} `json:"headers"`
-}
-
 // Options main program options
 type Options struct {
 	Title       string `json:"title"`
@@ -24,6 +16,10 @@ type Options struct {
 			DynamicReload bool   `json:"DynamicReload"`
 			BaseDir       string `json:"BaseDir"`
 		} `json:"ace"`
+		API []struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		} `json:"api"`
 	} `json:"options"`
 	Database struct {
 		Server string `json:"server"`

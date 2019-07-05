@@ -60,12 +60,11 @@ func Request(path string) ([]byte, *logger.HTTPError) {
 		return nil, logger.HTTPErr(http.StatusInternalServerError)
 	}
 
-	head, er := Header()
-	if er != nil {
-		return nil, er
-	}
-	for _, headers := range head.Headers {
-		req.Header.Set(headers.Name, headers.Value)
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	ap := Option().Options
+	for _, api := range ap.API {
+		req.Header.Set(api.Name, api.Value)
 	}
 
 	client := &http.Client{Timeout: time.Second * 10}
