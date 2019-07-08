@@ -62,7 +62,7 @@ func Request(path string) ([]byte, *logger.HTTPError) {
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	ap := Option().Options
+	ap := Option()
 	for _, api := range ap.API {
 		req.Header.Set(api.Name, api.Value)
 	}

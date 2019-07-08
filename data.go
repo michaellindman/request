@@ -4,26 +4,25 @@ import (
 	"time"
 )
 
-// Options main program options
 type Options struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Site        string `json:"site"`
-	Options     struct {
+	Server      struct {
 		Address string `json:"address"`
 		Port    int    `json:"port"`
-		Ace     struct {
-			DynamicReload bool   `json:"DynamicReload"`
-			BaseDir       string `json:"BaseDir"`
-		} `json:"ace"`
-		API []struct {
-			Name  string `json:"name"`
-			Value string `json:"value"`
-		} `json:"api"`
-	} `json:"options"`
+	} `json:"server"`
+	Ace struct {
+		DynamicReload bool   `json:"DynamicReload"`
+		BaseDir       string `json:"BaseDir"`
+	} `json:"ace"`
+	API []struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	} `json:"api"`
 	Database struct {
 		Server string `json:"server"`
-		DB     string `json:"db"`
+		Db     string `json:"db"`
 		User   string `json:"user"`
 		Passwd string `json:"passwd"`
 	} `json:"database"`
