@@ -8,6 +8,7 @@ type Options struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Site        string `json:"site"`
+	Environment string `json:"environment"`
 	Server      struct {
 		Address string `json:"address"`
 		Port    int    `json:"port"`
