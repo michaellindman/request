@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Options struct for application options
 type Options struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
