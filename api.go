@@ -113,7 +113,7 @@ func Topics(path string) map[string]interface{} {
 	}
 	for _, topics := range resp.TopicList.Topics {
 		var t Topic
-		resp, err := Request("/t/" + topics.Slug)
+		resp, err := Request("t/" + topics.Slug)
 		if err != nil {
 			m := structs.Map(err)
 			return m
