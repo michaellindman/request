@@ -32,6 +32,16 @@ func Option() (options *Options) {
 	return
 }
 
+// API gets api options data from json file
+func API() (api *APIOpt) {
+	resp, err := File("./assets/json/api.json")
+	if err != nil {
+		return
+	}
+	json.Unmarshal(resp, &api)
+	return
+}
+
 // Contact get contact information from json file
 func Contact() map[string]interface{} {
 	var contact Contacts

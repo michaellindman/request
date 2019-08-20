@@ -2,10 +2,10 @@ package request
 
 import (
 	"encoding/json"
-	"fmt"
 	"html"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -28,22 +28,25 @@ func Request(path string) ([]byte, *logger.HTTPError) {
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	ap := Option()
-	for _, api := range ap.API {
-		req.Header.Set(api.Name, api.Value)
+	if os.Getenv("GOENV") != "production" {
+		resp := API()
+		for _, api := range resp.API {
+			req.Header.Set(api.Name, api.Value)
+		}
+	} else {
+		req.Header.Set("Api-Key", os.Getenv("GOAPIKEY"))
+		req.Header.Set("Api-Username", os.Getenv("APIUSERNAME"))
 	}
 
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.ErrorLog("Error reading request. ", err)
-		fmt.Println(err)
 		return nil, logger.HTTPErr(http.StatusInternalServerError)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.ErrorLog("Error reading request. ", err)
-		fmt.Println(err)
 		return nil, logger.HTTPErr(http.StatusInternalServerError)
 	}
 	defer resp.Body.Close()

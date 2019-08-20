@@ -4,6 +4,14 @@ import (
 	"time"
 )
 
+// APIOpt API options
+type APIOpt struct {
+	API []struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	} `json:"api"`
+}
+
 // Options struct for application options
 type Options struct {
 	Title       string `json:"title"`
@@ -18,10 +26,6 @@ type Options struct {
 		DynamicReload bool   `json:"DynamicReload"`
 		BaseDir       string `json:"BaseDir"`
 	} `json:"ace"`
-	API []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
-	} `json:"api"`
 	Database struct {
 		Server string `json:"server"`
 		Db     string `json:"db"`
