@@ -74,7 +74,7 @@ func Category() map[string]interface{} {
 // CategoryTopic returns category json data
 func CategoryTopic(path string) map[string]interface{} {
 	var topics CategoryTopics
-	resp, err := Request("/c/" + path)
+	resp, err := Request("c/" + path)
 	if err != nil {
 		m := structs.Map(err)
 		return m
