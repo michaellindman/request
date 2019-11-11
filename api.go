@@ -20,40 +20,31 @@ type HTTPError struct {
 	Error      error
 }
 
-// HTTPErr HTTP Error
-func HTTPErr(StatusCode int, err error) *HTTPError {
-	return &HTTPError{
-		StatusCode: StatusCode,
-		Error:      err}
-}
-
 // Get sends GET request to path
 func Get(r *Request, path string) ([]byte, *HTTPError) {
 	req, err := http.NewRequest("GET", r.URL+"/"+path, nil)
 	if err != nil {
-		return nil, HTTPErr(http.StatusInternalServerError, err)
+		return nil, &HTTPError{StatusCode: http.StatusInternalServerError, Error: err}
 	}
-
 	for i := 0; i < len(r.Headers); i++ {
 		header := strings.Split(r.Headers[i], ",")
 		req.Header.Set(header[0], header[1])
 	}
-
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, HTTPErr(http.StatusInternalServerError, err)
+		return nil, &HTTPError{StatusCode: http.StatusInternalServerError, Error: err}
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, HTTPErr(http.StatusInternalServerError, err)
+		return nil, &HTTPError{StatusCode: http.StatusInternalServerError, Error: err}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
 		return body, nil
 	}
-	return nil, HTTPErr(resp.StatusCode, nil)
+	return nil, &HTTPError{StatusCode: resp.StatusCode, Error: nil}
 }
 
 // JSONParse parses json data
