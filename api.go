@@ -2,6 +2,8 @@ package request
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -44,7 +46,8 @@ func Get(r *Request, path string) ([]byte, *HTTPError) {
 	if resp.StatusCode == 200 {
 		return body, nil
 	}
-	return nil, &HTTPError{StatusCode: resp.StatusCode, Error: nil}
+	e := fmt.Sprintf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
+	return nil, &HTTPError{StatusCode: resp.StatusCode, Error: errors.New(e)}
 }
 
 // JSONParse parses json data
@@ -52,6 +55,7 @@ func JSONParse(r *Request, path string) (map[string]interface{}, *HTTPError) {
 	var result map[string]interface{}
 	resp, err := Get(r, path)
 	if err != nil {
+		fmt.Println(err.Error)
 		return nil, err
 	}
 	json.Unmarshal(resp, &result)
