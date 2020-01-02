@@ -36,11 +36,11 @@ func Req(method string, statuscode int, url *url.URL, body []byte) *Request {
 	}
 }
 
-// Get sends GET request to path
-func Get(r *Options, path string) (*Request, error) {
-	req, err := http.NewRequest("GET", r.URL+"/"+path, nil)
+// API sends RESTful API requests
+func API(method string, r *Options, path string, data []byte) (*Request, error) {
+	req, err := http.NewRequest(method, r.URL+"/"+path, bytes.NewBuffer(data))
 	if err != nil {
-		return Req(http.MethodGet, http.StatusInternalServerError, req.URL, nil), err
+		return Req(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	for i := 0; i < len(r.Headers); i++ {
 		header := strings.Split(r.Headers[i], ",")
@@ -49,45 +49,22 @@ func Get(r *Options, path string) (*Request, error) {
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Req(http.MethodGet, http.StatusInternalServerError, req.URL, nil), err
+		return Req(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Req(http.MethodGet, http.StatusInternalServerError, req.URL, nil), err
+		return Req(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		return Req(http.MethodGet, resp.StatusCode, resp.Request.URL, body), nil
+		return Req(method, resp.StatusCode, resp.Request.URL, body), nil
 	}
 	e := fmt.Sprintf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return Req(http.MethodGet, http.StatusInternalServerError, req.URL, nil), errors.New(e)
+	return Req(method, http.StatusInternalServerError, req.URL, nil), errors.New(e)
 }
 
-// Post sends POST request to path
-func Post(r *Options, path string, data []byte) (*Request, error) {
-	fmt.Println(string(data))
-	req, err := http.NewRequest("POST", r.URL+"/"+path, bytes.NewBuffer(data))
-	if err != nil {
-		return Req(http.MethodPost, http.StatusInternalServerError, req.URL, nil), err
-	}
-	for i := 0; i < len(r.Headers); i++ {
-		header := strings.Split(r.Headers[i], ",")
-		req.Header.Set(header[0], header[1])
-	}
-	client := &http.Client{Timeout: time.Second * 10}
-	resp, err := client.Do(req)
-	if err != nil {
-		return Req(http.MethodPost, http.StatusInternalServerError, req.URL, nil), err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == 200 {
-		return Req(http.MethodPost, resp.StatusCode, resp.Request.URL, nil), nil
-	}
-	e := fmt.Sprintf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return Req(http.MethodPost, http.StatusInternalServerError, req.URL, nil), errors.New(e)
-}
-
+// JSONReq Request
 type JSONReq struct {
 	StatusCode int
 	Body       map[string]interface{}
@@ -96,7 +73,7 @@ type JSONReq struct {
 // JSONParse parses json data
 func JSONParse(r *Options, path string) (*JSONReq, error) {
 	var result map[string]interface{}
-	resp, err := Get(r, path)
+	resp, err := API(http.MethodGet, r, path, nil)
 	if err != nil {
 		fmt.Println(err)
 		return &JSONReq{StatusCode: resp.StatusCode}, err
