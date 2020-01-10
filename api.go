@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -23,7 +22,7 @@ type Request struct {
 // Options Request Options
 type Options struct {
 	URL     string
-	Headers []string
+	Headers map[string]string
 }
 
 // Req HTTP Request
@@ -42,9 +41,8 @@ func API(method string, r *Options, path string, data []byte) (*Request, error) 
 	if err != nil {
 		return Req(method, http.StatusInternalServerError, req.URL, nil), err
 	}
-	for i := 0; i < len(r.Headers); i++ {
-		header := strings.Split(r.Headers[i], ",")
-		req.Header.Set(header[0], header[1])
+	for k, v := range r.Headers {
+		req.Header.Set(k, v)
 	}
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
@@ -61,7 +59,7 @@ func API(method string, r *Options, path string, data []byte) (*Request, error) 
 		return Req(method, resp.StatusCode, resp.Request.URL, body), nil
 	}
 	e := fmt.Sprintf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return Req(method, http.StatusInternalServerError, req.URL, nil), errors.New(e)
+	return Req(method, resp.StatusCode, req.URL, nil), errors.New(e)
 }
 
 // JSONReq Request
