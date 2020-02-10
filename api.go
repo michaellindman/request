@@ -3,7 +3,6 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -35,6 +34,10 @@ func Req(method string, statuscode int, url *url.URL, body []byte) *Request {
 	}
 }
 
+func apiError(url string, path string, statuscode int) error {
+	return fmt.Errorf("api: %s/%s - %d %s", url, path, statuscode, http.StatusText(statuscode))
+}
+
 // API sends RESTful API requests
 func API(method string, r *Options, path string, data []byte) (*Request, error) {
 	req, err := http.NewRequest(method, r.URL+"/"+path, bytes.NewBuffer(data))
@@ -58,8 +61,26 @@ func API(method string, r *Options, path string, data []byte) (*Request, error) 
 	if resp.StatusCode == 200 {
 		return Req(method, resp.StatusCode, resp.Request.URL, body), nil
 	}
-	e := fmt.Sprintf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return Req(method, resp.StatusCode, req.URL, nil), errors.New(e)
+	return Req(method, resp.StatusCode, req.URL, nil), apiError(r.URL, path, resp.StatusCode)
+}
+
+// AsyncAPI sends request concurrently
+func AsyncAPI(method string, r *Options, path string, data []byte, ch chan *Request, chFinished chan bool, chError chan error) {
+	resp, err := API(method, r, path, data)
+	defer func() {
+		chFinished <- true
+	}()
+	if err != nil {
+		ch <- Req(method, resp.StatusCode, resp.URL, nil)
+		chError <- err
+		return
+	}
+	if resp.StatusCode == 200 {
+		ch <- Req(method, resp.StatusCode, resp.URL, resp.Body)
+		return
+	}
+	ch <- Req(method, resp.StatusCode, resp.URL, nil)
+	chError <- apiError(r.URL, path, resp.StatusCode)
 }
 
 // JSONReq Request
