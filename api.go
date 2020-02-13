@@ -64,7 +64,7 @@ func API(method string, r *Options, path string, data []byte) (*Request, error) 
 	return Req(method, resp.StatusCode, req.URL, nil), apiError(r.URL, path, resp.StatusCode)
 }
 
-// AsyncAPI sends request concurrently
+// AsyncAPI send requests concurrently
 func AsyncAPI(method string, r *Options, path string, data []byte, ch chan *Request, chFinished chan bool, chError chan error) {
 	resp, err := API(method, r, path, data)
 	defer func() {
