@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// Request API return request
-type Request struct {
+// Response API return request
+type Response struct {
 	Method     string
 	StatusCode int
 	URL        *url.URL
@@ -25,8 +25,8 @@ type Options struct {
 }
 
 // Req HTTP Request
-func Req(method string, statuscode int, url *url.URL, body []byte) *Request {
-	return &Request{
+func response(method string, statuscode int, url *url.URL, body []byte) *Response {
+	return &Response{
 		Method:     method,
 		StatusCode: statuscode,
 		URL:        url,
@@ -39,10 +39,10 @@ func apiError(url string, path string, statuscode int) error {
 }
 
 // API sends RESTful API requests
-func API(method string, r *Options, path string, data []byte) (*Request, error) {
+func API(method string, r *Options, path string, data []byte) (*Response, error) {
 	req, err := http.NewRequest(method, r.URL+"/"+path, bytes.NewBuffer(data))
 	if err != nil {
-		return Req(method, http.StatusInternalServerError, req.URL, nil), err
+		return response(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	for k, v := range r.Headers {
 		req.Header.Set(k, v)
@@ -50,36 +50,36 @@ func API(method string, r *Options, path string, data []byte) (*Request, error) 
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Req(method, http.StatusInternalServerError, req.URL, nil), err
+		return response(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Req(method, http.StatusInternalServerError, req.URL, nil), err
+		return response(method, http.StatusInternalServerError, req.URL, nil), err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		return Req(method, resp.StatusCode, resp.Request.URL, body), nil
+		return response(method, resp.StatusCode, resp.Request.URL, body), nil
 	}
-	return Req(method, resp.StatusCode, req.URL, nil), apiError(r.URL, path, resp.StatusCode)
+	return response(method, resp.StatusCode, req.URL, nil), apiError(r.URL, path, resp.StatusCode)
 }
 
 // AsyncAPI send requests concurrently
-func AsyncAPI(method string, r *Options, path string, data []byte, ch chan *Request, chFinished chan bool, chError chan error) {
+func AsyncAPI(method string, r *Options, path string, data []byte, ch chan *Response, chFinished chan bool, chError chan error) {
 	resp, err := API(method, r, path, data)
 	defer func() {
 		chFinished <- true
 	}()
 	if err != nil {
-		ch <- Req(method, resp.StatusCode, resp.URL, nil)
+		ch <- response(method, resp.StatusCode, resp.URL, nil)
 		chError <- err
 		return
 	}
 	if resp.StatusCode == 200 {
-		ch <- Req(method, resp.StatusCode, resp.URL, resp.Body)
+		ch <- response(method, resp.StatusCode, resp.URL, resp.Body)
 		return
 	}
-	ch <- Req(method, resp.StatusCode, resp.URL, nil)
+	ch <- response(method, resp.StatusCode, resp.URL, nil)
 	chError <- apiError(r.URL, path, resp.StatusCode)
 }
 
