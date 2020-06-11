@@ -20,13 +20,6 @@ type Response struct {
 	Error      error
 }
 
-// Options Request Options
-type Options struct {
-	URL     string
-	Headers map[string]string
-}
-
-// Req HTTP Request
 func response(method string, statuscode int, url *url.URL, body []byte, err error) *Response {
 	return &Response{
 		Method:     method,
@@ -38,14 +31,13 @@ func response(method string, statuscode int, url *url.URL, body []byte, err erro
 }
 
 // API sends RESTful API requests
-func API(method string, r *Options, path string, data []byte) (*Response, error) {
-	req, err := http.NewRequest(method, r.URL+"/"+path, bytes.NewBuffer(data))
+func API(method, url string, data []byte) (*Response, error) {
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
 		return response(method, http.StatusInternalServerError, req.URL, nil, err), err
 	}
-	for k, v := range r.Headers {
-		req.Header.Set(k, v)
-	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -60,30 +52,30 @@ func API(method string, r *Options, path string, data []byte) (*Response, error)
 	if resp.StatusCode == 200 {
 		return response(method, resp.StatusCode, resp.Request.URL, body, err), nil
 	}
-	err = fmt.Errorf("api: %s/%s - %d %s", r.URL, path, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return response(method, resp.StatusCode, req.URL, nil, err), err
+	err = fmt.Errorf("api: %s - %d %s", url, resp.StatusCode, http.StatusText(resp.StatusCode))
+	return response(method, resp.StatusCode, resp.Request.URL, nil, err), err
 }
 
 // AsyncAPI send requests concurrently
-func AsyncAPI(method string, r *Options, path string, data []byte, ch chan<- *Response, wg *sync.WaitGroup) {
+func AsyncAPI(method, url string, data []byte, ch chan<- *Response, wg *sync.WaitGroup) {
 	defer wg.Done()
-	resp, _ := API(method, r, path, data)
+	resp, _ := API(method, url, data)
 	ch <- resp
 }
 
-// JSONReq Request
-type JSONReq struct {
+// JSONResp Response
+type JSONResp struct {
 	StatusCode int
 	Body       map[string]interface{}
 }
 
 // JSONParse parses json data
-func JSONParse(r *Options, path string) (*JSONReq, error) {
+func JSONParse(url string) (*JSONResp, error) {
 	var result map[string]interface{}
-	resp, err := API(http.MethodGet, r, path, nil)
+	resp, err := API(http.MethodGet, url, nil)
 	if err != nil {
-		return &JSONReq{StatusCode: resp.StatusCode}, err
+		return &JSONResp{StatusCode: resp.StatusCode}, err
 	}
 	json.Unmarshal(resp.Body, &result)
-	return &JSONReq{StatusCode: resp.StatusCode, Body: result}, nil
+	return &JSONResp{StatusCode: resp.StatusCode, Body: result}, nil
 }
