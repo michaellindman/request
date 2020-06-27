@@ -20,46 +20,39 @@ type Response struct {
 	Error      error
 }
 
-func response(method string, statuscode int, url *url.URL, body []byte, err error) *Response {
-	return &Response{
-		Method:     method,
-		StatusCode: statuscode,
-		URL:        url,
-		Body:       body,
-		Error:      err,
-	}
-}
-
 // API sends RESTful API requests
-func API(method, url string, data []byte) (*Response, error) {
+func API(method, url string, headers map[string]string, data []byte) (*Response, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
 	if err != nil {
-		return response(method, http.StatusInternalServerError, req.URL, nil, err), err
+		return &Response{method, http.StatusInternalServerError, req.URL, nil, err}, err
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
+	for k, v := range headers {
+		req.Header.Set(k, v)
+	}
 	client := &http.Client{Timeout: time.Second * 10}
 	resp, err := client.Do(req)
 	if err != nil {
-		return response(method, http.StatusInternalServerError, req.URL, nil, err), err
+		return &Response{method, http.StatusInternalServerError, req.URL, nil, err}, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return response(method, http.StatusInternalServerError, req.URL, nil, err), err
+		return &Response{method, http.StatusInternalServerError, req.URL, nil, err}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		return response(method, resp.StatusCode, resp.Request.URL, body, err), nil
+		return &Response{method, resp.StatusCode, resp.Request.URL, body, err}, nil
 	}
 	err = fmt.Errorf("api: %s - %d %s", url, resp.StatusCode, http.StatusText(resp.StatusCode))
-	return response(method, resp.StatusCode, resp.Request.URL, nil, err), err
+	return &Response{method, resp.StatusCode, resp.Request.URL, nil, err}, err
 }
 
 // AsyncAPI send requests concurrently
-func AsyncAPI(method, url string, data []byte, ch chan<- *Response, wg *sync.WaitGroup) {
+func AsyncAPI(method, url string, headers map[string]string, data []byte, ch chan<- *Response, wg *sync.WaitGroup) {
 	defer wg.Done()
-	resp, _ := API(method, url, data)
+	resp, _ := API(method, url, headers, data)
 	ch <- resp
 }
 
@@ -70,9 +63,9 @@ type JSONResp struct {
 }
 
 // JSONParse parses json data
-func JSONParse(url string) (*JSONResp, error) {
+func JSONParse(url string, headers map[string]string) (*JSONResp, error) {
 	var result map[string]interface{}
-	resp, err := API(http.MethodGet, url, nil)
+	resp, err := API(http.MethodGet, url, headers, nil)
 	if err != nil {
 		return &JSONResp{StatusCode: resp.StatusCode}, err
 	}
