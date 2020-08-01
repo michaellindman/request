@@ -1,3 +1,3 @@
-module git.0cd.xyz/michael/request
+module github.com/michaellindman/request
 
 go 1.14
