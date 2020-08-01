@@ -2,7 +2,6 @@ package request
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -21,13 +20,11 @@ type Response struct {
 }
 
 // API sends RESTful API requests
-func API(method, url string, headers map[string]string, data []byte) (*Response, error) {
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+func API(method, url string, headers map[string]string, data *bytes.Buffer) (*Response, error) {
+	req, err := http.NewRequest(method, url, data)
 	if err != nil {
 		return &Response{method, http.StatusInternalServerError, req.URL, nil, err}, err
 	}
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
@@ -50,25 +47,8 @@ func API(method, url string, headers map[string]string, data []byte) (*Response,
 }
 
 // AsyncAPI send requests concurrently
-func AsyncAPI(method, url string, headers map[string]string, data []byte, ch chan<- *Response, wg *sync.WaitGroup) {
+func AsyncAPI(method, url string, headers map[string]string, data *bytes.Buffer, ch chan<- *Response, wg *sync.WaitGroup) {
 	defer wg.Done()
 	resp, _ := API(method, url, headers, data)
 	ch <- resp
-}
-
-// JSONResp Response
-type JSONResp struct {
-	StatusCode int
-	Body       map[string]interface{}
-}
-
-// JSONParse parses json data
-func JSONParse(url string, headers map[string]string) (*JSONResp, error) {
-	var result map[string]interface{}
-	resp, err := API(http.MethodGet, url, headers, nil)
-	if err != nil {
-		return &JSONResp{StatusCode: resp.StatusCode}, err
-	}
-	json.Unmarshal(resp.Body, &result)
-	return &JSONResp{StatusCode: resp.StatusCode, Body: result}, nil
 }
