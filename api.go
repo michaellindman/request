@@ -1,8 +1,8 @@
 package request
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -20,7 +20,7 @@ type Response struct {
 }
 
 // API sends RESTful API requests
-func API(method, url string, headers map[string]string, data *bytes.Buffer) (*Response, error) {
+func API(method, url string, headers map[string]string, data io.Reader) (*Response, error) {
 	req, err := http.NewRequest(method, url, data)
 	if err != nil {
 		return &Response{method, http.StatusInternalServerError, req.URL, nil, err}, err
@@ -47,7 +47,7 @@ func API(method, url string, headers map[string]string, data *bytes.Buffer) (*Re
 }
 
 // AsyncAPI send requests concurrently
-func AsyncAPI(method, url string, headers map[string]string, data *bytes.Buffer, ch chan<- *Response, wg *sync.WaitGroup) {
+func AsyncAPI(method, url string, headers map[string]string, data io.Reader, ch chan<- *Response, wg *sync.WaitGroup) {
 	defer wg.Done()
 	resp, _ := API(method, url, headers, data)
 	ch <- resp
